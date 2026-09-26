@@ -111,3 +111,23 @@ section h2 {
 #submit:hover {
     background-color: #a04000;
 }
+
+/* Features Section */
+.feature-grid {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.feature {
+    flex: 1;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.feature h3 {
+    margin-bottom: 10px;
+    color: #d35400;
+}
