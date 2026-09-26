@@ -41,3 +41,19 @@ body {
     font-weight: 700;
     color: #d35400;
 }
+
+#nav-bar {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: #d35400;
+}
