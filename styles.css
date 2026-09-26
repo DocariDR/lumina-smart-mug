@@ -57,3 +57,25 @@ body {
 .nav-link:hover {
     color: #d35400;
 }
+
+.container {
+    max-width: 900px;
+    margin: 100px auto 40px auto;
+    padding: 0 20px;
+}
+
+section {
+    padding: 60px 0;
+    border-bottom: 1px solid #eaeaea;
+    text-align: center;
+}
+
+section:last-child {
+    border-bottom: none;
+}
+
+section h2 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #222;
+}
