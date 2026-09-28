@@ -83,6 +83,7 @@ section {
     padding: 60px 0;
     border-bottom: 1px solid #eaeaea;
     text-align: center;
+    scroll-margin-top: 90px;
 }
 
 section:last-child {
