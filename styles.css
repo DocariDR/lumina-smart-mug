@@ -46,11 +46,6 @@ body {
     align-items: center;
 }
 
-#header-img {
-    height: 40px;
-    width: auto;
-}
-
 .logo-text {
     font-size: 1.5rem;
     font-weight: 700;
