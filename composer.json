@@ -1,0 +1,8 @@
+{
+    "name": "lumina/landing",
+    "description": "Lumina Smart Mug landing page with newsletter and pre-orders",
+    "type": "project",
+    "require": {
+        "php": "^8.4"
+    }
+}
