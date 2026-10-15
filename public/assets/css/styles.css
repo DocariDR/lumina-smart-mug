@@ -1,5 +1,7 @@
 :root {
     --brand-color: #a04000;
+    --brand-color-hover: #7f3300;
+    --focus-color: #1a5fb4;
 }
 
 * {
@@ -13,6 +15,26 @@ body {
     color: #333;
     line-height: 1.6;
     background-color: #fafafa;
+}
+
+:focus-visible {
+    outline: 3px solid var(--focus-color);
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 10px;
+    z-index: 2000;
+    padding: 8px 12px;
+    background: #ffffff;
+    color: var(--brand-color);
+    font-weight: 600;
+}
+
+.skip-link:focus {
+    top: 10px;
 }
 
 .sr-only {
@@ -91,7 +113,7 @@ section h2 {
     color: #222;
 }
 
-/* Form Styles */
+/* Newsletter form */
 #form {
     margin-top: 20px;
     display: flex;
@@ -120,10 +142,17 @@ section h2 {
 }
 
 #submit:hover {
-    background-color: #a04000;
+    background-color: var(--brand-color-hover);
 }
 
-/* Features Section */
+.form-message {
+    margin-top: 16px;
+    min-height: 1.6em;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Features section */
 .feature-grid {
     display: flex;
     justify-content: space-around;
@@ -143,7 +172,7 @@ section h2 {
     color: var(--brand-color);
 }
 
-/* Video Section */
+/* Video section */
 .video-container {
     max-width: 560px;
     margin: 0 auto;
@@ -157,7 +186,7 @@ section h2 {
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Pricing Section */
+/* Pricing section */
 .pricing-card {
     background: #fff;
     max-width: 350px;
@@ -190,28 +219,42 @@ section h2 {
     background-color: #444;
 }
 
-/* Media Query */
+.buy-btn:disabled {
+    background-color: #777;
+    cursor: not-allowed;
+}
+
+.note {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* Responsive */
 @media (max-width: 600px) {
     #header {
-        flex-direction: column;
         padding: 15px;
+    }
+
+    #header .wrapper {
+        flex-direction: column;
         gap: 15px;
     }
-    
+
     .feature-grid {
         flex-direction: column;
     }
-    
+
     #form {
         flex-direction: column;
         align-items: center;
     }
-    
+
     #email {
         width: 100%;
         max-width: 300px;
     }
-    
+
     .container {
         margin-top: 140px;
     }
