@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lumina Smart Mug - Product Landing Page</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>Lumina Smart Mug | Perfect temperature, every time</title>
+    <meta name="description" content="Lumina Smart Mug keeps your coffee at your preferred temperature for up to 8 hours. Sign up to hear when pre-orders open." />
+    <meta name="theme-color" content="#a04000" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%98%95%3C/text%3E%3C/svg%3E" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Lumina Smart Mug" />
+    <meta property="og:description" content="The perfect temperature, every time." />
+    <meta name="twitter:card" content="summary" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
     <header id="header">
@@ -12,7 +19,7 @@
             <div class="logo-container">
                 <span class="logo-text">Lumina</span>
             </div>
-            <nav id="nav-bar">
+            <nav id="nav-bar" aria-label="Main">
                 <a class="nav-link" href="#features">Features</a>
                 <a class="nav-link" href="#how-it-works">How It Works</a>
                 <a class="nav-link" href="#pricing">Pricing</a>
@@ -25,13 +32,7 @@
             <p>Sign up for our newsletter to get notified when we launch!</p>
             <form id="form" action="https://www.freecodecamp.org/email-submit">
                 <label for="email" class="sr-only">Email address</label>
-                <input 
-                    id="email" 
-                    type="email" 
-                    name="email" 
-                    placeholder="Enter your email address" 
-                    required 
-                />
+                <input id="email" type="email" name="email" placeholder="Enter your email address" autocomplete="email" required/>
                 <input id="submit" type="submit" value="Subscribe" />
             </form>
         </section>
@@ -55,12 +56,7 @@
         <section id="how-it-works">
             <h2>How It Works</h2>
             <div class="video-container">
-                <iframe 
-                    id="video" 
-                    src="https://www.youtube.com/embed/tgbNymZ7vqY" 
-                    title="Product Demonstration" 
-                    allowfullscreen>
-                </iframe>
+                <iframe id="video" src="https://www.youtube-nocookie.com/embed/tgbNymZ7vqY" title="Product Demonstration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
         </section>
         <section id="pricing">
@@ -69,7 +65,8 @@
                 <h3>Lumina Mug Gen 2</h3>
                 <p class="price">$99.00</p>
                 <p>Includes charging coaster and 1-year warranty.</p>
-                <button class="buy-btn" type="button">Pre-order Now</button>
+                <button class="buy-btn" type="button" disabled>Pre-order Now</button>
+                <p class="note">Pre-orders are coming soon.</p>
             </div>
         </section>
     </main>
