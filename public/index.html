@@ -12,8 +12,10 @@
     <meta property="og:description" content="The perfect temperature, every time." />
     <meta name="twitter:card" content="summary" />
     <link rel="stylesheet" href="assets/css/styles.css" />
+    <script src="assets/js/form.js" defer></script>
 </head>
 <body>
+    <a class="skip-link" href="#hero">Skip to content</a>
     <header id="header">
         <div class="wrapper">
             <div class="logo-container">
@@ -35,6 +37,7 @@
                 <input id="email" type="email" name="email" placeholder="Enter your email address" autocomplete="email" required/>
                 <input id="submit" type="submit" value="Subscribe" />
             </form>
+            <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
         </section>
         <section id="features">
             <h2>Features</h2>
