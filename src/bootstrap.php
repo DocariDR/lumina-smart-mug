@@ -15,3 +15,9 @@ spl_autoload_register(static function (string $class): void {
         require $file;
     }
 });
+
+function redirect_home(string $status): never
+{
+    header('Location: /?newsletter=' . rawurlencode($status) . '#hero', true, 303);
+    exit;
+}
