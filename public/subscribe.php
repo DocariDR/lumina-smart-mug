@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
-require __DIR__ . '/../src/bootstrap.php';
+use Lumina\Subscription\SubscribeOutcome;
 
-use Lumina\Subscription\EmailValidator;
+/** @var \Lumina\Subscription\SubscriptionService $subscriptions */
+$subscriptions = require __DIR__ . '/../src/services.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST');
@@ -11,12 +13,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$rawEmail = $_POST['email'] ?? '';
-$email = is_string($rawEmail) ? EmailValidator::normalize($rawEmail) : '';
-
-if (!EmailValidator::isValid($email)) {
-    redirect_home('invalid');
+// Honeypot : un champ caché que les humains ne remplissent pas.
+// Un robot qui le remplit reçoit une réponse de succès sans que rien ne soit enregistré.
+if (($_POST['website'] ?? '') !== '') {
+    redirect_home(SubscribeOutcome::CheckEmail->value);
 }
 
-// L'enregistrement en base et le double opt-in arrivent en V2.
-redirect_home('unavailable');
+$rawEmail = $_POST['email'] ?? '';
+$consent = ($_POST['consent'] ?? '') === '1';
+$ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+$outcome = $subscriptions->subscribe(
+    is_string($rawEmail) ? $rawEmail : '',
+    $consent,
+    $ip,
+);
+
+redirect_home($outcome->value);
