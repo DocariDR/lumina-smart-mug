@@ -117,6 +117,8 @@ section h2 {
 #form {
     margin-top: 20px;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
     gap: 10px;
 }
@@ -127,6 +129,7 @@ section h2 {
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
+    outline-color: var(--brand-color-hover);
 }
 
 #submit {
@@ -164,15 +167,62 @@ section h2 {
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    max-width: 520px;
-    margin: 16px auto 0;
+    max-width: 560px;
+    margin: 0 auto 16px;
     text-align: left;
     font-size: 0.9rem;
     color: #444;
+    cursor: pointer;
+    user-select: none; /* Empêche la sélection du texte au clic */
 }
 
 .consent input {
     margin-top: 4px;
+}
+
+/* Masquer l'apparence native tout en gardant l'élément accessible */
+.consent input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cbd5e1;
+    border-radius: 4px;
+    background-color: #ffffff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+    vertical-align: middle;
+}
+
+/* Effet au survol (hover) */
+.consent input[type="checkbox"]:hover {
+    border-color: var(--brand-color);
+}
+
+/* Style lorsque la checkbox est COCHÉE */
+.consent input[type="checkbox"]:checked {
+    background-color: var(--brand-color);
+    border-color: var(--brand-color);
+}
+
+/* Style lorsque la checkbox est COCHÉE */
+.consent input[type="checkbox"]:checked:hover {
+    background-color: var(--brand-color-hover);
+    border-color: var(--brand-color-hover);
+}
+
+/* Ajout d'une icône de coche (checkmark) en CSS */
+.consent input[type="checkbox"]:checked::before {
+    content: "";
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px; /* Ajustement fin du centrage */
 }
 
 /* Features section */
