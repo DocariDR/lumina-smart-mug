@@ -8,7 +8,11 @@
 
     var texts = {
         invalid: 'Please enter a valid email address.',
-        unavailable: 'Sign-ups open very soon. Thanks for your interest!'
+        consent: 'Please accept the newsletter terms to subscribe.',
+        'check-email': 'Almost done! Check your inbox to confirm your subscription.',
+        confirmed: 'Thanks! Your subscription is confirmed.',
+        'token-invalid': 'This confirmation link is invalid or has expired. Please subscribe again.',
+        error: 'Something went wrong. Please try again in a few minutes.'
     };
 
     var status = new URLSearchParams(window.location.search).get('newsletter');

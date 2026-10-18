@@ -152,6 +152,29 @@ section h2 {
     color: #333;
 }
 
+.hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 520px;
+    margin: 16px auto 0;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.consent input {
+    margin-top: 4px;
+}
+
 /* Features section */
 .feature-grid {
     display: flex;
