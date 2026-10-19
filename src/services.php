@@ -1,9 +1,9 @@
 <?php
-
 declare(strict_types=1);
 
 use Lumina\Database\Connection;
 use Lumina\Mail\OutboxMailer;
+use Lumina\Mail\SmtpMailer;
 use Lumina\Subscription\SubscriberRepository;
 use Lumina\Subscription\SubscriptionService;
 
@@ -22,7 +22,6 @@ $config = require $configFile;
 try {
     $pdo = Connection::create($config['db']);
 } catch (\PDOException $exception) {
-    // Détails techniques dans le journal serveur uniquement, jamais dans la réponse.
     error_log('Lumina : connexion à la base impossible : ' . $exception->getMessage());
     http_response_code(503);
     exit('Service indisponible.');
@@ -30,6 +29,7 @@ try {
 
 $mailer = match ($config['mailer']) {
     'outbox' => new OutboxMailer(__DIR__ . '/../storage/outbox'),
+    'smtp' => new SmtpMailer($config['mail']),
     default => throw new RuntimeException('Mode d\'envoi inconnu.'),
 };
 
