@@ -96,6 +96,23 @@ final class SubscriptionService
         return ConfirmOutcome::Confirmed;
     }
 
+    public function unsubscribe(string $token): UnsubscribeOutcome
+    {
+        if (preg_match(self::TOKEN_PATTERN, $token) !== 1) {
+            return UnsubscribeOutcome::TokenInvalid;
+        }
+
+        $subscriber = $this->store->findByUnsubscribeTokenHash(self::hashToken($token));
+
+        if ($subscriber === null || $subscriber['status'] === 'unsubscribed') {
+            return UnsubscribeOutcome::TokenInvalid;
+        }
+
+        $this->store->markUnsubscribed($subscriber['id'], $this->now()->format('Y-m-d H:i:s'));
+
+        return UnsubscribeOutcome::Unsubscribed;
+    }
+
     public static function hashToken(string $token): string
     {
         return hash('sha256', $token);
