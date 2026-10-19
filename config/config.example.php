@@ -20,6 +20,7 @@ return [
 
     // V2 : 'outbox' écrit les emails dans storage/outbox (développement uniquement).
     // V3 remplacera ce mode par l'envoi SMTP.
+    'mailer' => 'smtp',
     'mail' => [
         'host' => 'sandbox.smtp.mailtrap.io',
         'port' => 587,
