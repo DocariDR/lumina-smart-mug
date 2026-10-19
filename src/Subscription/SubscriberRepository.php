@@ -112,6 +112,28 @@ final class SubscriberRepository implements SubscriberStore
         $statement->execute(['id' => $id, 'confirmed_at' => $confirmedAt]);
     }
 
+    public function findByUnsubscribeTokenHash(string $tokenHash): ?array
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT id, email, status, confirm_token_expires_at FROM subscribers WHERE unsubscribe_token_hash = :hash LIMIT 1'
+        );
+        $statement->execute(['hash' => $tokenHash]);
+        $row = $statement->fetch();
+
+        return $row === false ? null : $this->hydrate($row);
+    }
+
+    public function markUnsubscribed(int $id, string $unsubscribedAt): void
+    {
+        $statement = $this->pdo->prepare(
+            'UPDATE subscribers
+                SET status = \'unsubscribed\',
+                    unsubscribed_at = :unsubscribed_at
+              WHERE id = :id'
+        );
+        $statement->execute(['id' => $id, 'unsubscribed_at' => $unsubscribedAt]);
+    }
+
     /** @param array<string, mixed> $row */
     private function hydrate(array $row): array
     {

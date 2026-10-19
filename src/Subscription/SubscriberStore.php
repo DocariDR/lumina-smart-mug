@@ -40,4 +40,9 @@ interface SubscriberStore
     ): void;
 
     public function markConfirmed(int $id, string $confirmedAt): void;
+
+    /** @return Subscriber|null */
+    public function findByUnsubscribeTokenHash(string $tokenHash): ?array;
+
+    public function markUnsubscribed(int $id, string $unsubscribedAt): void;
 }
