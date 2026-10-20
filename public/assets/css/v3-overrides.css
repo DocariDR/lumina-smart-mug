@@ -1,0 +1,17 @@
+.site-footer {
+    max-width: 900px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+    text-align: center;
+}
+.site-footer a,
+.legal-page a {
+    color: var(--brand-color);
+    font-weight: 600;
+}
+.legal-page section {
+    text-align: left;
+}
+.legal-page h2 {
+    margin-top: 2rem;
+}
