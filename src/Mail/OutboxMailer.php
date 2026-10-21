@@ -10,7 +10,7 @@ final class OutboxMailer implements MailerInterface
     public function __construct(private readonly string $directory)
     {
     }
-    public function send(string $to, string $subject, string $textBody, array $headers = []): void
+    public function send(string $to, string $subject, string $textBody, array $headers = [], ?string $htmlBody = null): void
     {
         if (!is_dir($this->directory) && !mkdir($this->directory, 0700, true) && !is_dir($this->directory)) {
             throw new RuntimeException('Dossier outbox introuvable.');

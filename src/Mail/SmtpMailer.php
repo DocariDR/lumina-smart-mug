@@ -12,7 +12,7 @@ final class SmtpMailer implements MailerInterface
     public function __construct(private readonly array $config)
     {
     }
-    public function send(string $to, string $subject, string $textBody, array $headers = []): void
+    public function send(string $to, string $subject, string $textBody, array $headers = [], ?string $htmlBody = null): void
     {
         $mail = new PHPMailer(true);
         try {
