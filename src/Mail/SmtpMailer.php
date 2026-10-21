@@ -36,9 +36,14 @@ final class SmtpMailer implements MailerInterface
                 $mail->addCustomHeader($name, $value);
             }
             $mail->Subject = $subject;
-            $mail->Body = $textBody;
-            $mail->AltBody = $textBody;
-            $mail->isHTML(false);
+            if ($htmlBody !== null) {
+                $mail->isHTML(true);
+                $mail->Body = $htmlBody;
+                $mail->AltBody = $textBody; // version texte pour les clients sans HTML
+            } else {
+                $mail->isHTML(false);
+                $mail->Body = $textBody;
+            }
             $mail->send();
         } catch (Exception $exception) {
             throw new RuntimeException('Envoi SMTP impossible.', 0, $exception);
