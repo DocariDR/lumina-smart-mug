@@ -1,3 +1,4 @@
 /vendor/
 /config/config.php
 .env
+/storage/outbox/
