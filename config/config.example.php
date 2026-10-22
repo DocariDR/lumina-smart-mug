@@ -18,17 +18,19 @@ return [
     // Clé secrète longue et aléatoire, utilisée pour pseudonymiser les adresses IP
     'ip_salt' => 'replace-with-a-long-random-string',
 
-    // V2 : 'outbox' écrit les emails dans storage/outbox (développement uniquement).
-    // V3 remplacera ce mode par l'envoi SMTP.
-    'mailer' => 'smtp',
+    // 'outbox' : les emails sont écrits dans storage/outbox/ (développement uniquement).
+    // 'smtp'   : envoi réel via un fournisseur SMTP (production). Ne pas utiliser le sandbox Mailtrap en production.
+    'mailer' => 'outbox',
     'mail' => [
         'host' => 'sandbox.smtp.mailtrap.io',
         'port' => 587,
         'username' => 'TON_USERNAME_MAILTRAP',
         'password' => 'TON_NOUVEAU_MOT_DE_PASSE',
         'encryption' => 'tls',
-        'from_email' => 'contact@lumina.com',
+        // Adresses d'exemple : remplacer par celles de votre domaine (authentifié en SPF/DKIM).
+        'from_email' => 'contact@votre-domaine.tld',
         'from_name' => 'Lumina Smart Mug',
-        'reply_to' => 'no-reply@lumina.com',
+        // Adresse qui reçoit les réponses des abonnés (ne pas utiliser une adresse « no-reply »).
+        'reply_to' => 'reponses@votre-domaine.tld',
     ],
 ];
