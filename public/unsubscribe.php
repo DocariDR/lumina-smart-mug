@@ -25,6 +25,7 @@ $status = is_string($_GET['status'] ?? null) ? $_GET['status'] : '';
 $message = match ($status) {
     'unsubscribed' => 'Your subscription has been cancelled.',
     'token-invalid' => 'This unsubscribe link is invalid or has already been used.',
+    'error' => 'Something went wrong. Please try again in a few minutes.',
     default => 'Click the button below to stop receiving the Lumina newsletter.',
 };
 $tokenHtml = htmlspecialchars($token, ENT_QUOTES | ENT_HTML5, 'UTF-8');

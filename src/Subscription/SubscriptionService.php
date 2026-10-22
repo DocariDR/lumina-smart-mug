@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Lumina\Database\DuplicateKeyException;
 use Lumina\Mail\MailerInterface;
+use PDOException;
 use RuntimeException;
 
 final class SubscriptionService
@@ -40,6 +41,8 @@ final class SubscriptionService
             }
         } catch (DuplicateKeyException) {
             return SubscribeOutcome::CheckEmail;
+        } catch (PDOException) {
+            return SubscribeOutcome::Error;
         }
 
         try {
@@ -65,11 +68,16 @@ final class SubscriptionService
     public function confirm(string $token): ConfirmOutcome
     {
         if (preg_match(self::TOKEN_PATTERN, $token) !== 1) return ConfirmOutcome::TokenInvalid;
-        $subscriber = $this->store->findByTokenHash(self::hashToken($token));
-        if ($subscriber === null || $subscriber['status'] !== 'pending') return ConfirmOutcome::TokenInvalid;
-        $expiresAt = $subscriber['confirm_token_expires_at'];
-        if ($expiresAt === null || $expiresAt < $this->now()->format('Y-m-d H:i:s')) return ConfirmOutcome::TokenInvalid;
-        $this->store->markConfirmed($subscriber['id'], $this->now()->format('Y-m-d H:i:s'));
+
+        try {
+            $subscriber = $this->store->findByTokenHash(self::hashToken($token));
+            if ($subscriber === null || $subscriber['status'] !== 'pending') return ConfirmOutcome::TokenInvalid;
+            $expiresAt = $subscriber['confirm_token_expires_at'];
+            if ($expiresAt === null || $expiresAt < $this->now()->format('Y-m-d H:i:s')) return ConfirmOutcome::TokenInvalid;
+            $this->store->markConfirmed($subscriber['id'], $this->now()->format('Y-m-d H:i:s'));
+        } catch (PDOException) {
+            return ConfirmOutcome::Error;
+        }
 
         return ConfirmOutcome::Confirmed;
     }
@@ -77,9 +85,14 @@ final class SubscriptionService
     public function unsubscribe(string $token): UnsubscribeOutcome
     {
         if (preg_match(self::TOKEN_PATTERN, $token) !== 1) return UnsubscribeOutcome::TokenInvalid;
-        $subscriber = $this->store->findByUnsubscribeTokenHash(self::hashToken($token));
-        if ($subscriber === null || $subscriber['status'] === 'unsubscribed') return UnsubscribeOutcome::TokenInvalid;
-        $this->store->markUnsubscribed($subscriber['id'], $this->now()->format('Y-m-d H:i:s'));
+
+        try {
+            $subscriber = $this->store->findByUnsubscribeTokenHash(self::hashToken($token));
+            if ($subscriber === null || $subscriber['status'] === 'unsubscribed') return UnsubscribeOutcome::TokenInvalid;
+            $this->store->markUnsubscribed($subscriber['id'], $this->now()->format('Y-m-d H:i:s'));
+        } catch (PDOException) {
+            return UnsubscribeOutcome::Error;
+        }
 
         return UnsubscribeOutcome::Unsubscribed;
     }

@@ -8,4 +8,5 @@ enum ConfirmOutcome: string
 {
     case Confirmed = 'confirmed';
     case TokenInvalid = 'token-invalid';
+    case Error = 'error';
 }

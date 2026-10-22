@@ -6,4 +6,5 @@ enum UnsubscribeOutcome: string
 {
     case Unsubscribed = 'unsubscribed';
     case TokenInvalid = 'token-invalid';
+    case Error = 'error';
 }
