@@ -19,6 +19,12 @@ if (!is_file($configFile)) {
 
 $config = require $configFile;
 
+if (strlen($config['ip_salt'] ?? '') < 32 || str_starts_with($config['ip_salt'], 'replace-with')) {
+    error_log('Lumina : ip_salt non configuré (32 caractères minimum).');
+    http_response_code(503);
+    exit('Service indisponible.');
+}
+
 try {
     $pdo = Connection::create($config['db']);
 } catch (\PDOException $exception) {
