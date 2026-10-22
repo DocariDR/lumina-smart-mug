@@ -15,7 +15,7 @@ final class SubscriptionService
     public const CONSENT_VERSION = 'newsletter-v2';
     public const TOKEN_TTL_HOURS = 48;
 
-    private const TOKEN_PATTERN = '/^[a-f0-9]{64}$/';
+    public const TOKEN_PATTERN = '/^[a-f0-9]{64}$/';
     public function __construct(private readonly SubscriberStore $store, private readonly MailerInterface $mailer, private readonly string $appUrl, private readonly string $ipSalt) {}
     public function subscribe(string $rawEmail, bool $consent, string $ip): SubscribeOutcome
     {

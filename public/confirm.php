@@ -12,7 +12,7 @@ $subscriptions = require __DIR__ . '/../src/services.php';
 // ce qui consommerait le jeton sans intervention de la personne.
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $token = is_string($_GET['token'] ?? null) ? $_GET['token'] : '';
-    if (preg_match('/^[a-f0-9]{64}$/', $token) !== 1) {
+    if (preg_match(\Lumina\Subscription\SubscriptionService::TOKEN_PATTERN, $token) !== 1) {
         redirect_home(ConfirmOutcome::TokenInvalid->value);
     }
     $tokenHtml = htmlspecialchars($token, ENT_QUOTES | ENT_HTML5, 'UTF-8');
