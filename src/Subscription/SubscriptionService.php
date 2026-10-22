@@ -16,42 +16,81 @@ final class SubscriptionService
     public const CONSENT_VERSION = 'newsletter-v2';
     public const TOKEN_TTL_HOURS = 48;
 
+    /** Jeton brut : 32 octets aléatoires encodés en hexadécimal (64 caractères). */
     public const TOKEN_PATTERN = '/^[a-f0-9]{64}$/';
-    public function __construct(private readonly SubscriberStore $store, private readonly MailerInterface $mailer, private readonly string $appUrl, private readonly string $ipSalt) {}
+
+    public function __construct(
+        private readonly SubscriberStore $store,
+        private readonly MailerInterface $mailer,
+        private readonly string $appUrl,
+        private readonly string $ipSalt,
+    ) {
+    }
+
     public function subscribe(string $rawEmail, bool $consent, string $ip): SubscribeOutcome
     {
         $email = EmailValidator::normalize($rawEmail);
-        if (!EmailValidator::isValid($email)) return SubscribeOutcome::Invalid;
-        if (!$consent) return SubscribeOutcome::ConsentRequired;
+
+        if (!EmailValidator::isValid($email)) {
+            return SubscribeOutcome::Invalid;
+        }
+
+        if (!$consent) {
+            return SubscribeOutcome::ConsentRequired;
+        }
+
         $now = $this->now();
         $token = bin2hex(random_bytes(32));
         $unsubscribeToken = bin2hex(random_bytes(32));
         $tokenHash = self::hashToken($token);
         $unsubscribeTokenHash = self::hashToken($unsubscribeToken);
         $expiresAt = $now->modify('+' . self::TOKEN_TTL_HOURS . ' hours')->format('Y-m-d H:i:s');
+        $consentAt = $now->format('Y-m-d H:i:s');
+        $ipHash = $this->hashIp($ip);
+
         try {
             $existing = $this->store->findByEmail($email);
 
             if ($existing === null) {
-                $this->store->createPending($email, $tokenHash, $expiresAt, $unsubscribeTokenHash, $now->format('Y-m-d H:i:s'), self::CONSENT_VERSION, $this->hashIp($ip));
+                $this->store->createPending(
+                    $email,
+                    $tokenHash,
+                    $expiresAt,
+                    $unsubscribeTokenHash,
+                    $consentAt,
+                    self::CONSENT_VERSION,
+                    $ipHash,
+                );
             } elseif ($existing['status'] === 'confirmed') {
+                // Réponse identique pour ne pas révéler qu'une adresse est déjà inscrite.
                 return SubscribeOutcome::CheckEmail;
             } else {
-                $this->store->resetToPending($existing['id'], $tokenHash, $expiresAt, $unsubscribeTokenHash, $now->format('Y-m-d H:i:s'), self::CONSENT_VERSION, $this->hashIp($ip));
+                // En attente ou désinscrite : nouveau jeton et nouveau consentement.
+                $this->store->resetToPending(
+                    $existing['id'],
+                    $tokenHash,
+                    $expiresAt,
+                    $unsubscribeTokenHash,
+                    $consentAt,
+                    self::CONSENT_VERSION,
+                    $ipHash,
+                );
             }
         } catch (DuplicateKeyException) {
+            // Inscription concurrente avec la même adresse : la première l'emporte.
             return SubscribeOutcome::CheckEmail;
         } catch (PDOException) {
             return SubscribeOutcome::Error;
         }
 
         try {
+            $confirmLink = $this->confirmLink($token);
             $unsubscribeLink = $this->unsubscribeLink($unsubscribeToken);
-            $confirmLink = rtrim($this->appUrl, '/') . '/confirm.php?token=' . $token;
+
             $this->mailer->send(
                 $email,
                 'Confirm your Lumina subscription',
-                $this->confirmationBody($token, $unsubscribeLink),
+                $this->confirmationBody($confirmLink, $unsubscribeLink),
                 [
                     'List-Unsubscribe' => '<' . $unsubscribeLink . '>',
                     'List-Unsubscribe-Post' => 'List-Unsubscribe=One-Click',
@@ -67,13 +106,22 @@ final class SubscriptionService
 
     public function confirm(string $token): ConfirmOutcome
     {
-        if (preg_match(self::TOKEN_PATTERN, $token) !== 1) return ConfirmOutcome::TokenInvalid;
+        if (preg_match(self::TOKEN_PATTERN, $token) !== 1) {
+            return ConfirmOutcome::TokenInvalid;
+        }
 
         try {
             $subscriber = $this->store->findByTokenHash(self::hashToken($token));
-            if ($subscriber === null || $subscriber['status'] !== 'pending') return ConfirmOutcome::TokenInvalid;
+
+            if ($subscriber === null || $subscriber['status'] !== 'pending') {
+                return ConfirmOutcome::TokenInvalid;
+            }
+
             $expiresAt = $subscriber['confirm_token_expires_at'];
-            if ($expiresAt === null || $expiresAt < $this->now()->format('Y-m-d H:i:s')) return ConfirmOutcome::TokenInvalid;
+            if ($expiresAt === null || $expiresAt < $this->now()->format('Y-m-d H:i:s')) {
+                return ConfirmOutcome::TokenInvalid;
+            }
+
             $this->store->markConfirmed($subscriber['id'], $this->now()->format('Y-m-d H:i:s'));
         } catch (PDOException) {
             return ConfirmOutcome::Error;
@@ -84,11 +132,17 @@ final class SubscriptionService
 
     public function unsubscribe(string $token): UnsubscribeOutcome
     {
-        if (preg_match(self::TOKEN_PATTERN, $token) !== 1) return UnsubscribeOutcome::TokenInvalid;
+        if (preg_match(self::TOKEN_PATTERN, $token) !== 1) {
+            return UnsubscribeOutcome::TokenInvalid;
+        }
 
         try {
             $subscriber = $this->store->findByUnsubscribeTokenHash(self::hashToken($token));
-            if ($subscriber === null || $subscriber['status'] === 'unsubscribed') return UnsubscribeOutcome::TokenInvalid;
+
+            if ($subscriber === null || $subscriber['status'] === 'unsubscribed') {
+                return UnsubscribeOutcome::TokenInvalid;
+            }
+
             $this->store->markUnsubscribed($subscriber['id'], $this->now()->format('Y-m-d H:i:s'));
         } catch (PDOException) {
             return UnsubscribeOutcome::Error;
@@ -107,16 +161,26 @@ final class SubscriptionService
         return hash_hmac('sha256', $ip, $this->ipSalt);
     }
 
+    private function confirmLink(string $token): string
+    {
+        return rtrim($this->appUrl, '/') . '/confirm.php?token=' . $token;
+    }
+
     private function unsubscribeLink(string $token): string
     {
         return rtrim($this->appUrl, '/') . '/unsubscribe.php?token=' . $token;
     }
 
-    private function confirmationBody(string $token, string $unsubscribeLink): string
+    private function confirmationBody(string $confirmLink, string $unsubscribeLink): string
     {
-        $link = rtrim($this->appUrl, '/') . '/confirm.php?token=' . $token;
-        return "Thanks for signing up for the Lumina newsletter.\n\nConfirm your subscription with this link (valid for " . self::TOKEN_TTL_HOURS . " hours):\n" . $link . "\n\nYou can unsubscribe at any time here:\n" . $unsubscribeLink . "\n\nIf you did not request this, you can ignore this email.";
+        return "Thanks for signing up for the Lumina newsletter.\n\n"
+            . 'Confirm your subscription with this link (valid for ' . self::TOKEN_TTL_HOURS . " hours):\n"
+            . $confirmLink . "\n\n"
+            . "You can unsubscribe at any time here:\n"
+            . $unsubscribeLink . "\n\n"
+            . "If you did not request this, you can ignore this email.";
     }
+
     private function confirmationHtml(string $confirmLink, string $unsubscribeLink): string
     {
         $confirm = htmlspecialchars($confirmLink, ENT_QUOTES | ENT_HTML5, 'UTF-8');
