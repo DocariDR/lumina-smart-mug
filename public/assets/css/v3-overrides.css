@@ -5,6 +5,7 @@
     text-align: center;
 }
 .site-footer a,
+.consent a,
 .legal-page a {
     color: var(--brand-color);
     font-weight: 600;
