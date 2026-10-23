@@ -8,8 +8,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Lumina\Database\DuplicateKeyException;
 use Lumina\Mail\MailerInterface;
-use PDOException;
-use RuntimeException;
+use Throwable;
 
 final class SubscriptionService
 {
@@ -79,7 +78,8 @@ final class SubscriptionService
         } catch (DuplicateKeyException) {
             // Inscription concurrente avec la même adresse : la première l'emporte.
             return SubscribeOutcome::CheckEmail;
-        } catch (PDOException) {
+        } catch (Throwable $exception) {
+            $this->logFailure('inscription (base de données)', $exception);
             return SubscribeOutcome::Error;
         }
 
@@ -97,7 +97,8 @@ final class SubscriptionService
                 ],
                 $this->confirmationHtml($confirmLink, $unsubscribeLink),
             );
-        } catch (RuntimeException) {
+        } catch (Throwable $exception) {
+            $this->logFailure('inscription (envoi de l\'email)', $exception);
             return SubscribeOutcome::Error;
         }
 
@@ -123,7 +124,8 @@ final class SubscriptionService
             }
 
             $this->store->markConfirmed($subscriber['id'], $this->now()->format('Y-m-d H:i:s'));
-        } catch (PDOException) {
+        } catch (Throwable $exception) {
+            $this->logFailure('confirmation', $exception);
             return ConfirmOutcome::Error;
         }
 
@@ -144,7 +146,8 @@ final class SubscriptionService
             }
 
             $this->store->markUnsubscribed($subscriber['id'], $this->now()->format('Y-m-d H:i:s'));
-        } catch (PDOException) {
+        } catch (Throwable $exception) {
+            $this->logFailure('désinscription', $exception);
             return UnsubscribeOutcome::Error;
         }
 
@@ -154,6 +157,20 @@ final class SubscriptionService
     public static function hashToken(string $token): string
     {
         return hash('sha256', $token);
+    }
+
+    /**
+     * Journalise l'erreur réelle côté serveur sans jamais l'afficher au visiteur.
+     * Throwable couvre aussi les \Error (classe introuvable après un envoi FTP incomplet).
+     */
+    private function logFailure(string $context, Throwable $exception): void
+    {
+        error_log(sprintf(
+            'Lumina : échec %s : %s (%s)',
+            $context,
+            $exception->getMessage(),
+            $exception::class,
+        ));
     }
 
     private function hashIp(string $ip): string
