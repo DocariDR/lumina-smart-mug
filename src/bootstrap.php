@@ -21,6 +21,14 @@ spl_autoload_register(static function (string $class): void {
     }
 });
 
+function start_secure_session(): void
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_set_cookie_params(['httponly' => true, 'samesite' => 'Lax', 'secure' => true]);
+        session_start();
+    }
+}
+
 function redirect_home(string $status): never
 {
     header('Location: /?newsletter=' . rawurlencode($status) . '#hero', true, 303);
