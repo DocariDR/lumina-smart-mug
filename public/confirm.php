@@ -25,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
     <title>Confirm your subscription | Lumina</title>
+    <meta name="theme-color" content="#a04000" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%98%95%3C/text%3E%3C/svg%3E" />
     <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
