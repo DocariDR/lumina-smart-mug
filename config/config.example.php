@@ -26,6 +26,12 @@ return [
         'currency' => 'USD',
         'max_quantity' => 3,
     ],
+    // Taux USD vers EUR en millionièmes, sans flottant : 920000 = 0,920000.
+    // Ce taux est figé dans chaque commande. Le taux EUR/XOF est 655,957.
+    'fx' => [
+        'usd_to_eur_rate_scaled' => 920000,
+        'rate_at' => '2026-11-02 00:00:00',
+    ],
 
     // 'outbox' : les emails sont écrits dans storage/outbox/ (développement uniquement).
     // 'smtp'   : envoi réel via un fournisseur SMTP (production). Ne pas utiliser le sandbox Mailtrap en production.
