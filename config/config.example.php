@@ -18,6 +18,15 @@ return [
     // Clé secrète longue et aléatoire, utilisée pour pseudonymiser les adresses IP
     'ip_salt' => 'replace-with-a-long-random-string',
 
+    // Paramètres de la précommande. Montants en centimes, en USD. Livraison aux États-Unis uniquement.
+    'product' => [
+        'name' => 'Lumina Mug Gen 2',
+        'unit_price_cents' => 9900,
+        'shipping_cents' => 0,
+        'currency' => 'USD',
+        'max_quantity' => 3,
+    ],
+
     // 'outbox' : les emails sont écrits dans storage/outbox/ (développement uniquement).
     // 'smtp'   : envoi réel via un fournisseur SMTP (production). Ne pas utiliser le sandbox Mailtrap en production.
     'mailer' => 'outbox',
