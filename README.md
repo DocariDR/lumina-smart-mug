@@ -1,24 +1,26 @@
 # Lumina Smart Mug
 
-![Status](https://img.shields.io/badge/version-V3-blue)
+![Status](https://img.shields.io/badge/version-V1.3.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL%2FMariaDB-4479A1?logo=mysql&logoColor=white)
 ![PHPMailer](https://img.shields.io/badge/PHPMailer-SMTP-777BB4)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
 
-Landing page du produit Lumina Smart Mug : inscription à la newsletter avec double opt-in, désinscription en un clic, politique de confidentialité, présentation des fonctionnalités, vidéo de démonstration et bloc de précommande. Né d'un projet freeCodeCamp (Responsive Web Design).
+Landing page du produit Lumina Smart Mug : newsletter avec double opt-in et désinscription en un clic, tunnel de précommande (sans paiement pour l'instant), pages légales. Né d'un projet freeCodeCamp (Responsive Web Design).
 
 ![Aperçu du projet](screenshot.png)
 
-## Où en est le projet (V3)
+## Où en est le projet (V1.3.0)
 
-- **Désinscription** : chaque email contient un lien de désinscription personnel (jeton aléatoire de 64 caractères, seul son hash SHA-256 est stocké). Comme pour la confirmation, le lien ouvre une page avec un bouton : seul le clic (POST) désinscrit, pour qu'un scanner de messagerie ne le fasse pas à la place de la personne.
-- **Désinscription en un clic depuis la messagerie** : les emails portent les en-têtes `List-Unsubscribe` et `List-Unsubscribe-Post` (RFC 8058), ce qui permet à Gmail ou Yahoo d'afficher leur propre bouton « Se désabonner ».
-- **Politique de confidentialité** (`privacy.html`) : données collectées, pseudonymisation de l'IP, prestataire d'envoi déclaré comme tiers, droits d'accès, de correction et de suppression. Le lien est placé à côté de la case de consentement, et la version du consentement (`newsletter-v2`) est enregistrée avec chaque inscription.
-- **Envoi d'email réel par SMTP** via PHPMailer : un mode `smtp` s'ajoute au mode `outbox` (développement). Emails en HTML avec une version texte de secours. Le fournisseur n'est pas figé dans le code : tout serveur SMTP avec STARTTLS ou SSL convient (Brevo, SMTP2GO, Mailjet, dont les quotas gratuits sont à vérifier au moment du choix).
-- **Erreurs** : toute exception ou erreur PHP (y compris une classe introuvable après un envoi FTP incomplet) renvoie une réponse générique au visiteur ; la cause réelle est écrite dans le journal du serveur, jamais affichée.
-- Hérité de la V2 : double opt-in avec jeton à 48 h, honeypot, IP pseudonymisée par HMAC-SHA256, réponse identique pour une adresse déjà inscrite. Hérité de la V1 : structure `public/` / `src/` / `config/` / `storage/`, en-têtes de sécurité via `.htaccess`, bouton « Pre-order Now » désactivé (V4).
+- **Tunnel de précommande, sans paiement** : le bouton « Pre-order Now » mène à `order.php` ; `create-order.php` valide la saisie côté serveur et enregistre une commande `pending` avec une référence aléatoire. Aucun paiement et aucune donnée bancaire dans cette version.
+- **Montants calculés côté serveur** : le prix unitaire et la quantité maximale viennent de `config/config.php`, les valeurs envoyées par le navigateur sont ignorées. Les montants sont stockés en centimes USD.
+- **Conversion USD vers XOF figée par commande** : USD, puis EUR (taux défini dans la configuration, indicatif), puis XOF (parité fixe 655,957), en entiers et arrondie au supérieur. Le montant XOF, les taux et leur date sont enregistrés avec la commande : le futur paiement FedaPay devra utiliser ce montant, jamais un recalcul.
+- **Livraison aux États-Unis uniquement** : 50 États et District de Columbia, code postal ZIP ou ZIP+4.
+- **Formulaire** : jeton CSRF à usage unique, honeypot, refus d'une commande identique (même email, même quantité) déjà en attente depuis moins de 10 minutes.
+- **Formulaire accessible** : erreurs signalées champ par champ (résumé avec liens, `aria-invalid`), saisie conservée après une erreur, cases de consentement jamais restaurées.
+- **Pages légales** : `terms.html` (conditions de vente de démonstration) et `privacy.html` complétée (données de commande, cookie de session strictement nécessaire).
+- **Limite assumée** : le site est une démonstration, aucune commande n'est livrée.
 
 ## Ce que j'ai mis en pratique
 
