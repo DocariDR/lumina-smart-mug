@@ -53,14 +53,14 @@ composer install
 cp config/config.example.php config/config.php
 ```
 
-Renseigne dans `config/config.php` tes identifiants de base de données locale et un `ip_salt` d'au moins 32 caractères (par exemple `openssl rand -hex 32`), puis importe le schéma :
+Renseigne dans `config/config.php` tes identifiants de base de données locale, un `ip_salt` d'au moins 32 caractères (par exemple `openssl rand -hex 32`), le bloc `product` (prix en centimes USD, quantité maximale) et le bloc `fx` (taux USD vers EUR en millionièmes, avec sa date), puis importe le schéma :
 
 ```bash
 mysql -u UTILISATEUR -p NOM_DE_BASE < db/schema.sql
 php -S localhost:8000 -t public
 ```
 
-Ouvre ensuite `http://localhost:8000`. Avec `'mailer' => 'outbox'`, les emails atterrissent dans `storage/outbox/` : les liens de confirmation et de désinscription s'y trouvent. Pour un vrai envoi, passe à `'mailer' => 'smtp'` et renseigne le bloc `mail` (hôte, port, identifiants, adresse d'expédition).
+Ouvre ensuite `http://localhost:8000`. Avec `'mailer' => 'outbox'`, les emails atterrissent dans `storage/outbox/` : les liens de confirmation et de désinscription s'y trouvent. Pour un vrai envoi, passe à `'mailer' => 'smtp'` et renseigne le bloc `mail` (hôte, port, identifiants, adresse d'expédition). La précommande est disponible sur `http://localhost:8000/order.php`.
 
 ### Déploiement sur hébergement mutualisé
 
