@@ -276,6 +276,7 @@ input[type="checkbox"]:checked::before {
 }
 
 .buy-btn {
+    display: inline-block;
     margin-top: 20px;
     padding: 12px 24px;
     background-color: #222;
