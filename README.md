@@ -24,12 +24,12 @@ Landing page du produit Lumina Smart Mug : newsletter avec double opt-in et dés
 
 ## Ce que j'ai mis en pratique
 
-- Gestion du cycle de vie d'un abonné (`pending`, `confirmed`, `unsubscribed`) avec deux jetons distincts, et renouvellement des jetons quand une adresse désinscrite se réinscrit.
-- Dépendance gérée avec Composer (PHPMailer) derrière une interface (`MailerInterface`) : le service ne sait pas s'il écrit un fichier ou parle à un serveur SMTP.
-- En-têtes d'email standards pour la désinscription en un clic (RFC 8058) et email HTML en tableaux avec version texte alternative.
-- Gestion d'erreurs au bon niveau : `Throwable` capturé à la frontière du service, journalisation côté serveur, message neutre côté visiteur.
-- Pseudonymisation de l'IP, consentement versionné et politique de confidentialité qui décrit uniquement ce que le code fait réellement.
-- Séparation interface / implémentation (`SubscriberStore` / `SubscriberRepository`) et enums PHP natifs pour les résultats (`SubscribeOutcome`, `ConfirmOutcome`, `UnsubscribeOutcome`).
+- Arithmétique monétaire en entiers : centimes, taux mis à l'échelle (millionièmes et millièmes), arrondi au supérieur, même formule en PHP et en JavaScript (`BigInt`). Un bug d'échelle (montant XOF 1000 fois trop grand) repéré en relecture est maintenant couvert par des tests de non-régression.
+- Protection contre le rejeu : jeton CSRF à usage unique et détection des commandes en double.
+- Post/Redirect/Get avec messages et saisie gardés en session, lus une seule fois.
+- Validation qui remonte toutes les erreurs d'un coup (`OrderValidationException` porte la liste des champs), reliées aux champs pour les lecteurs d'écran.
+- `OrderStore` (interface) pour tester `OrderService` sans base de données : le script `tests/OrderTest.php` couvre la conversion, la validation et les doublons.
+- Cycle de vie d'un abonné avec deux jetons, dépendance Composer (PHPMailer) derrière `MailerInterface`, `Throwable` capturé à la frontière du service avec journalisation côté serveur.
 
 ## Démo
 
