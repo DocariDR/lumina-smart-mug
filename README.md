@@ -75,6 +75,9 @@ Ouvre ensuite `http://localhost:8000`. Avec `'mailer' => 'outbox'`, les emails a
 lumina-smart-mug/
 ├── public/                         # Racine web : seul dossier exposé
 │   ├── index.html
+│   ├── order.php                   # Formulaire de précommande
+│   ├── create-order.php            # Validation et enregistrement
+│   ├── terms.html
 │   ├── privacy.html
 │   ├── subscribe.php
 │   ├── confirm.php
@@ -83,11 +86,15 @@ lumina-smart-mug/
 │   └── assets/
 │       ├── css/
 │       │   ├── styles.css
-│       │   └── v3-overrides.css
-│       └── js/form.js
+│       │   ├── v3-overrides.css
+│       │   └── order.css
+│       └── js/
+│           ├── form.js
+│           └── order.js            # Total USD et XOF en direct
 ├── src/
-│   ├── bootstrap.php                # Autoload + fonctions communes
-│   ├── services.php                 # Câblage des dépendances
+│   ├── bootstrap.php                # Autoload, session sécurisée, fonctions communes
+│   ├── services.php                 # Câblage newsletter
+│   ├── order-service.php            # Câblage précommande
 │   ├── Database/
 │   │   ├── Connection.php
 │   │   └── DuplicateKeyException.php
@@ -95,6 +102,14 @@ lumina-smart-mug/
 │   │   ├── MailerInterface.php
 │   │   ├── OutboxMailer.php
 │   │   └── SmtpMailer.php
+│   ├── Order/
+│   │   ├── CurrencyConverter.php
+│   │   ├── OrderStore.php
+│   │   ├── OrderRepository.php
+│   │   ├── OrderService.php
+│   │   ├── OrderValidationException.php
+│   │   ├── OrderDuplicateException.php
+│   │   └── UsStates.php
 │   └── Subscription/
 │       ├── EmailValidator.php
 │       ├── SubscribeOutcome.php
@@ -104,13 +119,17 @@ lumina-smart-mug/
 │       ├── SubscriberRepository.php
 │       └── SubscriptionService.php
 ├── db/
-│   └── schema.sql
+│   ├── schema.sql
+│   └── migrations/
+├── tests/
+│   └── OrderTest.php
 ├── config/
 │   ├── config.example.php
 │   └── .htaccess
 ├── storage/
 │   └── .htaccess
 ├── composer.json
+├── composer.lock
 ├── .gitignore
 └── README.md
 ```
