@@ -6,9 +6,7 @@
         "php": "^8.4",
         "ext-pdo": "*",
         "ext-pdo_mysql": "*",
+        "ext-curl": "*",
         "phpmailer/phpmailer": "^7.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^11.5"
     }
 }
