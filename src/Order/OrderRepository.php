@@ -2,12 +2,39 @@
 declare(strict_types=1);
 namespace Lumina\Order;
 use PDO;
+use Throwable;
 final class OrderRepository implements OrderStore
 {
     public function __construct(private readonly PDO $pdo)
     {
     }
+
     public function createPending(array $order): void
+    {
+        $this->pdo->beginTransaction();
+        try {
+            // Un client qui a fermé la page de paiement peut réessayer tout de suite :
+            // l'ancienne tentative est annulée, et non bloquée.
+            $cancel = $this->pdo->prepare(<<<'SQL'
+                UPDATE orders
+                SET status = 'cancelled', cancelled_at = NOW()
+                WHERE email = :email AND quantity = :quantity AND status = 'pending'
+                  AND created_at >= (NOW() - INTERVAL 10 MINUTE)
+                SQL);
+            $cancel->execute(['email' => $order['email'], 'quantity' => $order['quantity']]);
+
+            $this->insertPending($order);
+            $this->pdo->commit();
+        } catch (Throwable $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw $exception;
+        }
+    }
+
+    /** @param array<string, mixed> $order */
+    private function insertPending(array $order): void
     {
         $statement = $this->pdo->prepare(<<<'SQL'
             INSERT INTO orders (
