@@ -75,11 +75,6 @@ final class OrderService
             throw new RuntimeException('Configuration produit invalide.');
         }
 
-        // Même e-mail et même quantité déjà en attente il y a peu : double clic ou script.
-        if ($this->orders->hasRecentPending($email, $quantity)) {
-            throw new OrderDuplicateException('Commande identique déjà en attente.');
-        }
-
         $acceptedAt = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $reference = strtoupper(bin2hex(random_bytes(8)));
         $total = ($quantity * $unitPrice) + $shipping;

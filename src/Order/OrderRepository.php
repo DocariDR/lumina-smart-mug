@@ -7,18 +7,6 @@ final class OrderRepository implements OrderStore
     public function __construct(private readonly PDO $pdo)
     {
     }
-    public function hasRecentPending(string $email, int $quantity): bool
-    {
-        $statement = $this->pdo->prepare(<<<'SQL'
-            SELECT 1 FROM orders
-            WHERE email = :email AND quantity = :quantity AND status = 'pending'
-              AND created_at >= (NOW() - INTERVAL 10 MINUTE)
-            LIMIT 1
-            SQL);
-        $statement->execute(['email' => $email, 'quantity' => $quantity]);
-        return $statement->fetchColumn() !== false;
-    }
-
     public function createPending(array $order): void
     {
         $statement = $this->pdo->prepare(<<<'SQL'
