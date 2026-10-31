@@ -38,7 +38,6 @@ $reference = is_string($_GET['ref'] ?? null) ? $_GET['ref'] : '';
 $messages = [
     'csrf' => 'Your form session has expired. Please reload the page and try again.',
     'error' => 'The order could not be saved. Please try again in a few moments.',
-    'duplicate' => 'An identical pre-order for this email address was received a few minutes ago. Please wait before submitting again.',
 ];
 $price = number_format(((int) $product['unit_price_cents']) / 100, 2, '.', '');
 $total = number_format(((int) $product['unit_price_cents'] + (int) $product['shipping_cents']) / 100, 2, '.', '');

@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-use Lumina\Order\OrderDuplicateException;
 use Lumina\Order\OrderService;
 use Lumina\Order\OrderValidationException;
 require_once __DIR__ . '/../src/bootstrap.php';
@@ -61,10 +60,6 @@ try {
     $_SESSION['order_old'] = keep_order_input($_POST);
     $_SESSION['order_errors'] = $exception->fields;
     header('Location: /order.php?status=invalid', true, 303);
-    exit;
-} catch (OrderDuplicateException $exception) {
-    $_SESSION['order_old'] = keep_order_input($_POST);
-    header('Location: /order.php?status=duplicate', true, 303);
     exit;
 } catch (Throwable $exception) {
     error_log('Lumina : commande non créée : ' . $exception->getMessage());
