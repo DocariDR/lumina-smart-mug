@@ -33,6 +33,13 @@ return [
         'rate_at' => '2026-11-02 00:00:00',
     ],
 
+    // V4.2 : la clé secrète reste uniquement dans config/config.php.
+    'fedapay' => [
+        'environment' => 'sandbox',
+        'api_key' => 'REPLACE_WITH_SANDBOX_SECRET_KEY', // sk_sandbox_… en sandbox, sk_live_… en live
+        'timeout' => 20,
+    ],
+
     // 'outbox' : les emails sont écrits dans storage/outbox/ (développement uniquement).
     // 'smtp'   : envoi réel via un fournisseur SMTP (production). Ne pas utiliser le sandbox Mailtrap en production.
     'mailer' => 'outbox',
