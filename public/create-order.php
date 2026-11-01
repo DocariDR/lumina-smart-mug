@@ -90,6 +90,12 @@ try {
     $orders->attachPayment($result['reference'], 'fedapay', $payment['transaction_id']);
 } catch (Throwable $exception) {
     error_log('Lumina : paiement FedaPay impossible : ' . $exception->getMessage());
+    // La commande ne doit pas rester « pending » sans paiement : elle ne bloquera pas une nouvelle tentative.
+    try {
+        $orders->markPaymentFailed($result['reference']);
+    } catch (Throwable $markException) {
+        error_log('Lumina : marquage de la commande en échec impossible : ' . $markException->getMessage());
+    }
     header('Location: /order.php?status=payment-error', true, 303);
     exit;
 }
