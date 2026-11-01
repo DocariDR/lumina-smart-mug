@@ -38,6 +38,7 @@ $reference = is_string($_GET['ref'] ?? null) ? $_GET['ref'] : '';
 $messages = [
     'csrf' => 'Your form session has expired. Please reload the page and try again.',
     'error' => 'The order could not be saved. Please try again in a few moments.',
+    'payment-error' => 'The secure payment page could not be opened. No payment was taken. Please try again in a few minutes.',
 ];
 $price = number_format(((int) $product['unit_price_cents']) / 100, 2, '.', '');
 $total = number_format(((int) $product['unit_price_cents'] + (int) $product['shipping_cents']) / 100, 2, '.', '');

@@ -2,6 +2,8 @@
 declare(strict_types=1);
 use Lumina\Order\OrderService;
 use Lumina\Order\OrderValidationException;
+use Lumina\Payment\FedaPayClient;
+use Lumina\Subscription\EmailValidator;
 require_once __DIR__ . '/../src/bootstrap.php';
 start_secure_session();
 
@@ -67,6 +69,31 @@ try {
     exit;
 }
 
+try {
+    $configFile = __DIR__ . '/../config/config.php';
+    $config = is_file($configFile) ? require $configFile : [];
+    $fedapay = new FedaPayClient($config['fedapay'] ?? []);
+    $appUrl = rtrim((string) ($config['app_url'] ?? ''), '/');
+    // Le retour du client doit revenir sur le site en HTTPS. Sinon, pas de redirection vers FedaPay.
+    if (!str_starts_with($appUrl, 'https://') || strlen($appUrl) <= strlen('https://')) {
+        throw new RuntimeException('app_url absente ou sans https:// dans config/config.php.');
+    }
+    $callbackUrl = $appUrl . '/payment-return.php?order=' . rawurlencode($result['reference']);
+    $payment = $fedapay->createTransactionAndToken(
+        'Lumina Smart Mug preorder #' . $result['reference'],
+        $result['total_xof'],
+        EmailValidator::normalize((string) ($_POST['email'] ?? '')),
+        is_string($_POST['customer_name'] ?? null) ? $_POST['customer_name'] : '',
+        $callbackUrl,
+        $result['reference'],
+    );
+    $orders->attachPayment($result['reference'], 'fedapay', $payment['transaction_id']);
+} catch (Throwable $exception) {
+    error_log('Lumina : paiement FedaPay impossible : ' . $exception->getMessage());
+    header('Location: /order.php?status=payment-error', true, 303);
+    exit;
+}
+
 unset($_SESSION['order_old'], $_SESSION['order_errors']);
-header('Location: /order.php?status=created&ref=' . rawurlencode($result['reference']), true, 303);
+header('Location: ' . $payment['payment_url'], true, 303);
 exit;
