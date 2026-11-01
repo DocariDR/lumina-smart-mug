@@ -12,4 +12,7 @@ interface OrderStore
     public function createPending(array $order): void;
 
     public function attachPayment(string $reference, string $provider, string $transactionId): void;
+
+    /** Passe une commande en attente à « failed » quand le paiement n'a pas pu être lancé. */
+    public function markPaymentFailed(string $reference): void;
 }

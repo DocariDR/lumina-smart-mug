@@ -124,6 +124,11 @@ final class OrderService
         $this->orders->attachPayment($reference, $provider, $transactionId);
     }
 
+    public function markPaymentFailed(string $reference): void
+    {
+        $this->orders->markPaymentFailed($reference);
+    }
+
     private function text(mixed $value, int $maxLength): string
     {
         $value = is_string($value) ? trim($value) : '';

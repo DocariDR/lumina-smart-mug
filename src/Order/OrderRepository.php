@@ -51,6 +51,16 @@ final class OrderRepository implements OrderStore
         }
     }
 
+    public function markPaymentFailed(string $reference): void
+    {
+        $statement = $this->pdo->prepare(<<<'SQL'
+            UPDATE orders
+            SET status = 'failed'
+            WHERE order_reference = :reference AND status = 'pending'
+            SQL);
+        $statement->execute(['reference' => $reference]);
+    }
+
     /** @param array<string, mixed> $order */
     private function insertPending(array $order): void
     {
