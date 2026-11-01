@@ -33,6 +33,24 @@ final class OrderRepository implements OrderStore
         }
     }
 
+    public function attachPayment(string $reference, string $provider, string $transactionId): void
+    {
+        $statement = $this->pdo->prepare(<<<'SQL'
+            UPDATE orders
+            SET payment_provider = :provider,
+                payment_session_id = :transaction_id
+            WHERE order_reference = :reference AND status = 'pending'
+            SQL);
+        $statement->execute([
+            'provider' => $provider,
+            'transaction_id' => $transactionId,
+            'reference' => $reference,
+        ]);
+        if ($statement->rowCount() !== 1) {
+            throw new \RuntimeException('Commande introuvable ou déjà liée à un paiement.');
+        }
+    }
+
     /** @param array<string, mixed> $order */
     private function insertPending(array $order): void
     {

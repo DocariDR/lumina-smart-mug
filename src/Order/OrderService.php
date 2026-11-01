@@ -118,6 +118,12 @@ final class OrderService
             'rate' => $this->converter->formattedRate(),
         ];
     }
+
+    public function attachPayment(string $reference, string $provider, string $transactionId): void
+    {
+        $this->orders->attachPayment($reference, $provider, $transactionId);
+    }
+
     private function text(mixed $value, int $maxLength): string
     {
         $value = is_string($value) ? trim($value) : '';

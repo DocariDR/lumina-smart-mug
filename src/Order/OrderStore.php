@@ -10,4 +10,6 @@ interface OrderStore
      * @param array<string, mixed> $order
      */
     public function createPending(array $order): void;
+
+    public function attachPayment(string $reference, string $provider, string $transactionId): void;
 }
