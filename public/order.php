@@ -113,14 +113,6 @@ $stateValue = old($oldInput, 'state_code');
     <main class="container order-page">
         <p class="eyebrow">Lumina Smart Mug</p>
         <h1>Prepare your preorder</h1>
-        <?php if ($status === 'created'): ?>
-            <section class="order-success" role="status">
-                <h2>Preorder registered</h2>
-                <p>Your reference number is <strong><?= e($reference) ?></strong>.</p>
-                <p>Secure payment via FedaPay will be activated in the upcoming minor release.</p>
-                <p><a href="/">Return to the homepage</a></p>
-            </section>
-        <?php else: ?>
             <?php if ($errorFields !== []): ?>
                 <section class="order-error-summary" role="alert" aria-labelledby="error-summary-title">
                     <h2 id="error-summary-title">Please correct the following:</h2>
@@ -219,7 +211,6 @@ $stateValue = old($oldInput, 'state_code');
                     <button class="buy-btn" type="submit">Submit my preorder</button>
                 </form>
             </div>
-        <?php endif; ?>
     </main>
     <script src="assets/js/order.js" defer></script>
 </body>
