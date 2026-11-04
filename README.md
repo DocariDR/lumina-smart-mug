@@ -1,26 +1,28 @@
 # Lumina Smart Mug
 
-![Status](https://img.shields.io/badge/version-V1.3.0-blue)
+![Status](https://img.shields.io/badge/version-V1.4.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL%2FMariaDB-4479A1?logo=mysql&logoColor=white)
 ![PHPMailer](https://img.shields.io/badge/PHPMailer-SMTP-777BB4)
+![FedaPay](https://img.shields.io/badge/FedaPay-sandbox-7A00BF)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
 
-Landing page du produit Lumina Smart Mug : newsletter avec double opt-in et désinscription en un clic, tunnel de précommande (sans paiement pour l'instant), pages légales. Né d'un projet freeCodeCamp (Responsive Web Design).
+Landing page du produit Lumina Smart Mug : newsletter avec double opt-in et désinscription en un clic, tunnel de précommande avec paiement FedaPay en mode test, pages légales. Né d'un projet freeCodeCamp (Responsive Web Design).
 
 ![Aperçu du projet](screenshot.png)
 
-## Où en est le projet (V1.3.0)
+## Où en est le projet (V1.4.0)
 
-- **Tunnel de précommande, sans paiement** : le bouton « Pre-order Now » mène à `order.php` ; `create-order.php` valide la saisie côté serveur et enregistre une commande `pending` avec une référence aléatoire. Aucun paiement et aucune donnée bancaire dans cette version.
-- **Montants calculés côté serveur** : le prix unitaire et la quantité maximale viennent de `config/config.php`, les valeurs envoyées par le navigateur sont ignorées. Les montants sont stockés en centimes USD.
-- **Conversion USD vers XOF figée par commande** : USD, puis EUR (taux défini dans la configuration, indicatif), puis XOF (parité fixe 655,957), en entiers et arrondie au supérieur. Le montant XOF, les taux et leur date sont enregistrés avec la commande : le futur paiement FedaPay devra utiliser ce montant, jamais un recalcul.
-- **Livraison aux États-Unis uniquement** : 50 États et District de Columbia, code postal ZIP ou ZIP+4.
-- **Formulaire** : jeton CSRF à usage unique, honeypot, refus d'une commande identique (même email, même quantité) déjà en attente depuis moins de 10 minutes.
-- **Formulaire accessible** : erreurs signalées champ par champ (résumé avec liens, `aria-invalid`), saisie conservée après une erreur, cases de consentement jamais restaurées.
-- **Pages légales** : `terms.html` (conditions de vente de démonstration) et `privacy.html` complétée (données de commande, cookie de session strictement nécessaire).
-- **Limite assumée** : le site est une démonstration, aucune commande n'est livrée.
+- **Paiement FedaPay en mode test (sandbox)** : après validation, `create-order.php` crée une transaction FedaPay en XOF, récupère l'URL de paiement et redirige le client (303). L'identifiant de transaction est enregistré dans la commande. Parcours testé de bout en bout sur l'hébergement : création, redirection, paiement de test, retour sur le site.
+- **Montant XOF figé** : la transaction utilise le `total_xof` enregistré avec la commande (USD, puis EUR au taux de la configuration, puis XOF à la parité fixe 655,957, en entiers, arrondi au supérieur), jamais un nouveau calcul.
+- **Réessai possible** : un client qui ferme la page de paiement peut recommencer tout de suite. Sa tentative identique (même email, même quantité) en attente depuis moins de 10 minutes passe en `cancelled`, dans la même transaction SQL que la création de la nouvelle commande. Si le paiement ne peut pas démarrer, la commande passe en `failed`.
+- **Redirection verrouillée** : seule une URL de paiement en HTTPS sur un domaine `.fedapay.com` est acceptée ; la clé secrète doit correspondre à l'environnement (`sk_sandbox_` ou `sk_live_`) ; `app_url` doit être en HTTPS pour l'adresse de retour.
+- **Page de retour prudente** (`payment-return.php`) : elle ne tient aucun compte du statut présent dans l'URL, n'affiche la référence que si elle a le bon format et indique que le paiement n'est pas confirmé. Aucune donnée de carte ni de téléphone ne transite par le site.
+- **Limite assumée** : une commande ne passe jamais en `paid` dans cette version. La version suivante lira le statut par un appel à l'API FedaPay au retour du client (l'hébergement gratuit bloque les webhooks entrants), après contrôle du montant.
+- **Points à clarifier avant un usage réel** : en sandbox, seuls des moyens de paiement mobiles sont proposés (pas de carte bancaire), ce qui ne convient pas à des acheteurs américains ; FedaPay peut aussi ajouter des frais au montant payé selon les réglages du compte.
+- **Acquis de la version précédente** : livraison aux États-Unis uniquement (50 États et District de Columbia, ZIP ou ZIP+4), prix recalculés côté serveur, jeton CSRF à usage unique, honeypot, erreurs de formulaire accessibles champ par champ, saisie conservée après une erreur, pages `terms.html` et `privacy.html`.
+- **Limite assumée** : le site est une démonstration, aucune commande n'est livrée et aucun vrai paiement n'est pris.
 
 ## Ce que j'ai mis en pratique
 
