@@ -59,7 +59,7 @@ composer install
 cp config/config.example.php config/config.php
 ```
 
-Renseigne dans `config/config.php` tes identifiants de base de données locale, un `ip_salt` d'au moins 32 caractères (par exemple `openssl rand -hex 32`), le bloc `product` (prix en centimes USD, quantité maximale) et le bloc `fx` (taux USD vers EUR en millionièmes, avec sa date), puis importe le schéma :
+Renseigne dans `config/config.php` tes identifiants de base de données locale, un `ip_salt` d'au moins 32 caractères (par exemple `openssl rand -hex 32`), le bloc `product` (prix en centimes USD, quantité maximale) et le bloc `fx` (taux USD vers EUR en millionièmes, avec sa date), `app_url` (adresse HTTPS publique du site) et le bloc `fedapay` (environnement `sandbox` et clé secrète `sk_sandbox_...` de ton compte de test), puis importe le schéma :
 
 ```bash
 mysql -u UTILISATEUR -p NOM_DE_BASE < db/schema.sql
@@ -68,12 +68,19 @@ php -S localhost:8000 -t public
 
 Ouvre ensuite `http://localhost:8000`. Avec `'mailer' => 'outbox'`, les emails atterrissent dans `storage/outbox/` : les liens de confirmation et de désinscription s'y trouvent. Pour un vrai envoi, passe à `'mailer' => 'smtp'` et renseigne le bloc `mail` (hôte, port, identifiants, adresse d'expédition). La précommande est disponible sur `http://localhost:8000/order.php`.
 
+Le paiement a besoin d'une adresse de retour en HTTPS accessible depuis Internet : sur `localhost`, le formulaire s'arrête sur le message d'erreur de paiement. Pour tester le parcours complet, utilise un hébergement en HTTPS. Ne versionne jamais `config/config.php` : il contient la clé secrète.
+
+### Mettre à jour le projet
+
+Chaque version se réinstalle à neuf : recrée la base (ou supprime les anciennes tables), puis importe `db/schema.sql`. Le fichier utilise `CREATE TABLE IF NOT EXISTS` : sur une base qui a déjà une ancienne table `orders`, il n'ajoute pas les nouvelles colonnes. Il n'y a pas de migrations, donc les commandes et abonnés de test sont perdus à chaque réinstallation.
+
 ### Déploiement sur hébergement mutualisé
 
 1. Crée une base `utf8mb4` et un utilisateur dédié, puis importe `db/schema.sql`.
 2. Pointe le domaine vers le dossier `public/` comme racine web (ou utilise la redirection `htdocs/.htaccess` si l'hébergeur l'impose), avec `src/`, `config/` et `storage/` hors de portée du web.
 3. Sans accès à Composer sur le serveur : lance `composer install --no-dev --optimize-autoloader` en local, puis envoie tout le dossier `vendor/` par FTP et vérifie qu'il est complet (`vendor/autoload.php`) avant de passer en mode `smtp`.
-4. Vérifie que la version PHP active du domaine est 8.4, et que `config/` et `storage/` répondent 403 ou 404 depuis le navigateur.
+4. Vérifie que la version PHP active du domaine est 8.4, que l'extension cURL est activée et que les appels sortants HTTPS vers `sandbox-api.fedapay.com` passent, puis que `config/` et `storage/` répondent 403 ou 404 depuis le navigateur.
+5. Renseigne `app_url` et la clé du bloc `fedapay` dans le `config/config.php` du serveur. Pour un usage réel, il faudra un compte FedaPay activé, une clé `sk_live_` et des pages légales complétées : ce n'est pas le cas de cette démonstration.
 
 ## Structure des fichiers
 
@@ -82,7 +89,8 @@ lumina-smart-mug/
 ├── public/                         # Racine web : seul dossier exposé
 │   ├── index.html
 │   ├── order.php                   # Formulaire de précommande
-│   ├── create-order.php            # Validation et enregistrement
+│   ├── create-order.php            # Validation, enregistrement, redirection FedaPay
+│   ├── payment-return.php          # Page de retour (ne confirme pas le paiement)
 │   ├── terms.html
 │   ├── privacy.html
 │   ├── subscribe.php
@@ -114,8 +122,10 @@ lumina-smart-mug/
 │   │   ├── OrderRepository.php
 │   │   ├── OrderService.php
 │   │   ├── OrderValidationException.php
-│   │   ├── OrderDuplicateException.php
 │   │   └── UsStates.php
+│   ├── Payment/
+│   │   ├── FedaPayClient.php        # Client cURL de l'API FedaPay
+│   │   └── FedaPayException.php
 │   └── Subscription/
 │       ├── EmailValidator.php
 │       ├── SubscribeOutcome.php
@@ -125,10 +135,7 @@ lumina-smart-mug/
 │       ├── SubscriberRepository.php
 │       └── SubscriptionService.php
 ├── db/
-│   ├── schema.sql
-│   └── migrations/
-├── tests/
-│   └── OrderTest.php
+│   └── schema.sql
 ├── config/
 │   ├── config.example.php
 │   └── .htaccess
