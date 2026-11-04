@@ -26,11 +26,14 @@ Landing page du produit Lumina Smart Mug : newsletter avec double opt-in et dés
 
 ## Ce que j'ai mis en pratique
 
-- Arithmétique monétaire en entiers : centimes, taux mis à l'échelle (millionièmes et millièmes), arrondi au supérieur, même formule en PHP et en JavaScript (`BigInt`). Un bug d'échelle (montant XOF 1000 fois trop grand) repéré en relecture est maintenant couvert par des tests de non-régression.
-- Protection contre le rejeu : jeton CSRF à usage unique et détection des commandes en double.
-- Post/Redirect/Get avec messages et saisie gardés en session, lus une seule fois.
-- Validation qui remonte toutes les erreurs d'un coup (`OrderValidationException` porte la liste des champs), reliées aux champs pour les lecteurs d'écran.
-- `OrderStore` (interface) pour tester `OrderService` sans base de données : le script `tests/OrderTest.php` couvre la conversion, la validation et les doublons.
+- Intégration d'une API de paiement sans SDK : client cURL natif (`FedaPayClient`), appels JSON authentifiés, délais d'attente, redirections désactivées, erreurs transformées en exception dédiée et journalisées sans jamais écrire la clé secrète.
+- Lecture défensive des réponses d'API : chemins explicites plutôt qu'une recherche récursive, pour ne pas prendre l'identifiant du client pour celui de la transaction.
+- Ne jamais faire confiance au navigateur : montants recalculés côté serveur, statut de l'URL de retour ignoré, URL de paiement limitée au domaine du prestataire.
+- Intégrité des données : annulation de l'ancienne tentative et création de la nouvelle dans une seule transaction SQL, avec `rollBack` en cas d'erreur, et contraintes `CHECK` en base.
+- Arithmétique monétaire en entiers : centimes, taux mis à l'échelle, arrondi au supérieur, même formule en PHP et en JavaScript (`BigInt`) pour l'affichage en direct du total.
+- Protection du formulaire : jeton CSRF à usage unique, honeypot, Post/Redirect/Get avec saisie et erreurs gardées en session et lues une seule fois.
+- Validation qui remonte toutes les erreurs d'un coup (`OrderValidationException`), reliées aux champs pour les lecteurs d'écran.
+- Séparation interface / implémentation (`OrderStore` / `OrderRepository`) derrière le service de commande.
 - Cycle de vie d'un abonné avec deux jetons, dépendance Composer (PHPMailer) derrière `MailerInterface`, `Throwable` capturé à la frontière du service avec journalisation côté serveur.
 
 ## Démo
@@ -42,6 +45,7 @@ Landing page du produit Lumina Smart Mug : newsletter avec double opt-in et dés
 - PHP 8.4
 - MySQL 8 ou MariaDB 10.5+ (PDO, requêtes préparées)
 - PHPMailer 7 (installé avec Composer)
+- Extension cURL de PHP, pour l'API FedaPay (compte sandbox pour les essais)
 - HTML5 / CSS3
 - JavaScript (vanilla, sans dépendance)
 - Apache (`.htaccess`) pour les en-têtes de sécurité et la protection des dossiers sensibles
